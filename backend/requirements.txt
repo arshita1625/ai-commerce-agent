@@ -1,9 +1,7 @@
 fastapi
 uvicorn[standard]
-openai
 python-multipart
-tqdm
 faiss-cpu
-torch
 pillow
 transformers
+sentence-transformers

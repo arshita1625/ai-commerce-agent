@@ -1,34 +1,32 @@
-# AI Commerce Agent
+# AI Commerce Agent Backend (Ollama Integration)
 
 ## Overview
-An AI-powered shopping assistant with chat, text-based product recommendations, and image search.
+This FastAPI backend uses:
+- **Ollama CLI** for chat (local models)
+- **SBERT + FAISS** for text-based recommendations
+- **CLIP + FAISS** for image-based search
 
-## Tech Stack
-- **Backend**: FastAPI, FAISS, OpenAI, CLIP
-- **Frontend**: React, Tailwind CSS
+## Prerequisites
+1. **Install Ollama**: https://ollama.com/docs/quickstart  
+2. **Pull model**:  
+   ```bash
+   ollama pull llama2
+   ```
+3. **Python dependencies**:
+   ```bash
+   cd backend
+   python3 -m venv venv && source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+4. **Product Images**:  
+   Place images under `backend/images/` matching `product_catalog.json`.
 
-## Setup
-### Backend
+## Running
 ```bash
-cd backend
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-export OPENAI_API_KEY=<your_key>
 uvicorn main:app --reload
 ```
 
-### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-## Usage
-- **Chat**: POST `/chat` with `{ "message": "..." }`
-- **Recommend**: POST `/recommend` with `{ "message": "..." }`
-- **Image Search**: POST `/search-by-image` form-data `file` field
-
-## Deployment
-- **Backend**: Docker + Render/Railway
-- **Frontend**: Vercel or Netlify
+## Endpoints
+- **Chat**: `POST /chat` → `{ "message": "Hello" }`  
+- **Recommend**: `POST /recommend` → `{ "message": "Recommend a t-shirt" }`  
+- **Image Search**: `POST /search-by-image` (form-data `file`)

@@ -3,12 +3,12 @@
     "id": 1,
     "name": "Nike Dry-Fit Sports T-Shirt",
     "description": "Lightweight t-shirt for workouts",
-    "image_path": "images/nike1.jpg"
+    "image_path": "images/nike.png"
   },
   {
     "id": 2,
     "name": "Adidas Running Shoes",
     "description": "Comfortable cushioned running shoes",
-    "image_path": "images/adidas2.jpg"
+    "image_path": "images/adidas.png"
   }
 ]
