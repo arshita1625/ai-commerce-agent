@@ -1,36 +1,37 @@
-# ─── Stage 1: Build the React frontend ─────────────────────────────────────
-FROM node:18-alpine AS frontend-build
-WORKDIR /app/frontend
+# ─── Stage 1: Build React frontend ─────────────────────────────────────────
+FROM node:18 AS frontend-build
+WORKDIR /build/frontend
 
-# Install JS deps & build
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --silent
 COPY frontend/ ./
 RUN npm run build
 
-# ─── Stage 2: Build & Run the FastAPI backend ───────────────────────────────
-FROM python:3.11-slim-buster
+# ─── Stage 2: Build & Run FastAPI backend ─────────────────────────────────
+FROM python:3.11
+
 WORKDIR /app
 
-# Install OS libs for CPU PyTorch wheels & FAISS
+# Install OpenMP libs, stdc++, gcc
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      build-essential libopenblas-dev libomp-dev && \
+      libgomp1 libomp5 libopenblas0-pthread libstdc++6 gcc && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Python deps: first CPU-only torch, then your requirements
+# Preload both gomp and stdc++ for FAISS/scikit-learn/transformers
+ENV LD_PRELOAD="libgomp.so.1 libstdc++.so.6"
+
+# Python deps: CPU-only torch first, then requirements
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
  && pip install --no-cache-dir -r requirements.txt
 
-# Copy backend code (this brings in main.py, utils.py, ollama_utils.py, product_catalog.json, images/, etc.)
+# Copy backend code (main.py, utils.py, ollama_utils.py, etc.)
 COPY backend/ ./backend
 
-# Copy built React assets into backend/static so FastAPI can serve them
-COPY --from=frontend-build /app/frontend/public ./backend/static
+# Copy built React app into backend/static for FastAPI
+COPY --from=frontend-build /build/frontend/public ./backend/static
 
-# Expose the port (Railway will override using $PORT)
 EXPOSE 8000
 
-# Start Uvicorn, binding to the Railway‐provided port if set
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
