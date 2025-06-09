@@ -1,39 +1,40 @@
-# ───────────── Stage 1: Build React frontend ─────────────
-FROM node:18-alpine AS frontend-build
-
-# work in the frontend folder
+# ─── Stage 1: Build React frontend ─────────────────────────────────────────
+FROM node:18-alpine AS frontend
 WORKDIR /app/frontend
 
-# install dependencies
+# Install JS deps & build
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci --silent
-
-# copy & build
+RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# ───────────── Stage 2: Build FastAPI backend ────────────
-FROM python:3.11-slim
+# ─── Stage 2: Build & run FastAPI backend ──────────────────────────────────
+FROM python:3.11-slim-buster
 
-# set a non-root user (optional but recommended)
-RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
-USER appuser
+# Install OS libs needed for PyTorch CPU wheels, FAISS, etc.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      build-essential \
+      libopenblas-dev \
+      libomp-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# install Python deps
+# Copy & install Python deps
 COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+# First install CPU-only PyTorch wheels, then the rest
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
+ && pip install --no-cache-dir -r requirements.txt
 
-# copy backend source
-COPY --chown=appuser:appgroup backend/ ./backend
+# Copy backend code
+COPY backend/ ./backend
 
-# copy in the React build as static files
-COPY --chown=appuser:appgroup --from=frontend-build /app/frontend/build ./backend/static
+# Copy React build into backend/static so FastAPI can serve it
+COPY --from=frontend /app/frontend/build ./backend/static
 
-# expose the port (Railway will override $PORT if set)
+# Expose and run
 ENV PORT=8000
 EXPOSE 8000
 
-# run Uvicorn serving both API & static files
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
