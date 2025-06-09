@@ -3,12 +3,137 @@
     "id": 1,
     "name": "Nike Dry-Fit Sports T-Shirt",
     "description": "Lightweight t-shirt for workouts",
-    "image_path": "images/nike.png"
+    "image_path": "images/nike.png",
+    "category": "t-shirt",
+    "price": 25.99,
+    "tags": [
+      "sports",
+      "workout"
+    ]
   },
   {
     "id": 2,
     "name": "Adidas Running Shoes",
     "description": "Comfortable cushioned running shoes",
-    "image_path": "images/adidas.png"
+    "image_path": "images/adidas.png",
+    "category": "shoes",
+    "price": 119.99,
+    "tags": [
+      "running"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Under Armour HeatGear T-Shirt",
+    "description": "High-intensity performance tee with four-way stretch.",
+    "category": "t-shirt",
+    "tags": [
+      "performance",
+      "sports",
+      "workout"
+    ],
+    "brand": "Under Armour",
+    "price": 29.99,
+    "image_path": "images/under-armour.png"
+  },
+  {
+    "id": 4,
+    "name": "Maybelline Fit Me Foundation",
+    "description": "Lightweight, buildable coverage foundation for a natural finish.",
+    "image_path": "images/maybelline.png",
+    "category": "foundation",
+    "tags": [
+      "makeup",
+      "face",
+      "medium-coverage"
+    ],
+    "brand": "Maybelline",
+    "price": 8.99
+  },
+  {
+    "id": 5,
+    "name": "L’Oréal Voluminous Mascara",
+    "description": "Volumizing mascara that instantly thickens lashes without clumping.",
+    "image_path": "images/loreal_mascara.png",
+    "category": "mascara",
+    "tags": [
+      "makeup",
+      "eyes",
+      "volumizing",
+      "mascara"
+    ],
+    "brand": "L’Oréal",
+    "price": 9.99
+  },
+  {
+    "id": 6,
+    "name": "Revlon Super Lustrous Lipstick",
+    "description": "Creamy, long-wear lipstick in a wide range of vibrant shades.",
+    "image_path": "images/revlon_lipstick.png",
+    "category": "lipstick",
+    "tags": [
+      "makeup",
+      "lips",
+      "long-wear",
+      "revlon"
+    ],
+    "brand": "Revlon",
+    "price": 7.49
+  },
+  {
+    "id": 7,
+    "name": "Neutrogena Hydro Boost Water Gel",
+    "description": "Oil-free gel moisturizer that delivers 48-hour hydration.",
+    "image_path": "images/hydro_boost_gel.png",
+    "category": "moisturizer",
+    "tags": [
+      "skincare",
+      "hydration",
+      "gel"
+    ],
+    "brand": "Neutrogena",
+    "price": 19.99
+  },
+  {
+    "id": 8,
+    "name": "CeraVe Hydrating Facial Cleanser",
+    "description": "Gentle, non-foaming cleanser with ceramides and hyaluronic acid.",
+    "image_path": "images/cerave_cleanser.png",
+    "category": "cleanser",
+    "tags": [
+      "skincare",
+      "gentle",
+      "hydrating",
+      "cleanser",
+      "facewash"
+    ],
+    "brand": "CeraVe",
+    "price": 14.99
+  },
+  {
+    "id": 9,
+    "name": "Chanel No.5 Eau de Parfum",
+    "description": "Iconic aldehyde-rich fragrance with floral notes.",
+    "image_path": "images/chanel_no5.png",
+    "category": "eau-de-parfum",
+    "tags": [
+      "luxury",
+      "floral",
+      "evening",
+      "perfume"
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Nike Air Zoom Pegasus",
+    "description": "Lightweight running shoe with responsive cushioning.",
+    "image_path": "images/nike_pegasus.png",
+    "category": "running-shoes",
+    "tags": [
+      "shoes",
+      "marathon",
+      "training",
+      "shoes"
+    ]
   }
 ]
