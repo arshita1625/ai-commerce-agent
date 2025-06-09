@@ -128,12 +128,12 @@
     "name": "Nike Air Zoom Pegasus",
     "description": "Lightweight running shoe with responsive cushioning.",
     "image_path": "images/nike_pegasus.png",
-    "category": "running-shoes",
+    "category": "shoes",
     "tags": [
       "shoes",
       "marathon",
       "training",
-      "shoes"
+      "running"
     ]
   }
 ]

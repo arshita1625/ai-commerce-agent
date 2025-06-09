@@ -7,6 +7,7 @@ from transformers import CLIPProcessor, CLIPModel
 from sentence_transformers import SentenceTransformer
 import faiss
 import re
+import difflib
 
 # Load product catalog
 catalog_path = os.path.join(os.path.dirname(__file__), "product_catalog.json")
@@ -32,69 +33,71 @@ def parse_recommendation(query: str):
     Parses:
       - "recommend me [some] <item> for <context>"
       - "recommend me [some] <item>"
-    Returns (item_norm, context_norm or None).
+    Returns (corrected_item_norm, context_norm or None).
     """
     # 1) Try with context
     m = re.search(
-        r"recommend(?: me)?(?: some)?\s+(?P<item>.+?)\s+for\s+(?P<context>.+?)[\.\?!]?$",
-        query,
-        flags=re.IGNORECASE
+        r"recommend(?: me)?(?: some)?\s+(?P<item>.+?)"
+        r"(?:\s+for\s+(?P<context>.+?))?[\.\?!]?$",
+        query, flags=re.IGNORECASE
     )
-    if m:
-        raw_item    = m.group("item").strip().lower()
-        raw_context = m.group("context").strip().lower()
+    if not m:
+        return None, None
+
+    raw_item    = m.group("item").strip().lower()
+    raw_context = m.group("context").strip().lower() if m.group("context") else None
+
+    # Strip leading articles:
+    raw_item = re.sub(r'^(?:a|an|the|some)\s+', '', raw_item)
+
+    # Build a list of known normalized catalog terms:
+    known = set()
+    for p in catalog:
+        known.add(normalize(p.get("category","")))
+        for t in p.get("tags", []):
+            known.add(normalize(t))
+    known = list(known)
+
+    # Fuzzy‐match raw_item → best catalog term
+    nm_item = normalize(raw_item)
+    best = difflib.get_close_matches(nm_item, known, n=1, cutoff=0.6)
+    if best:
+        item = best[0]
     else:
-        # 2) Fallback to no-context
-        m2 = re.search(
-            r"recommend(?: me)?(?: some)?\s+(?P<item>.+?)[\.\?!]?$",
-            query,
-            flags=re.IGNORECASE
-        )
-        if not m2:
-            return None, None
-        raw_item    = m2.group("item").strip().lower()
-        raw_context = None
+        item = nm_item
 
-    # Strip leading articles from the item phrase
-    raw_item = re.sub(r"^(?:a|an|the|some)\s+", "", raw_item)
-
-    item    = normalize(raw_item)
     context = normalize(raw_context) if raw_context else None
     return item, context
 
 # ─── recommend_products ───────────────────────────────────────────────────
 def recommend_products(query: str, k: int = 3):
     item, context = parse_recommendation(query)
-
-    # 1) If user asked for an item, try strict catalog match first
     if item:
+        # 1) Strict item‐matching: category, name or tags
         candidates = []
         for p in catalog:
-            cat_norm  = normalize(p.get("category", ""))
-            name_norm = normalize(p.get("name", ""))
-            tags_norm = [normalize(t) for t in p.get("tags", [])]
-            if (
-                item in cat_norm
-                or item in name_norm
-                or any(item in t for t in tags_norm)
-            ):
+            fields = [p.get("category",""), p.get("name","")] + p.get("tags",[])
+            norms  = [normalize(f) for f in fields]
+            if any(item == n or item in n for n in norms):
                 candidates.append(p)
 
         if candidates:
-            # 2a) If context also given, try narrowing by it
+            # 2a) If context provided, narrow by it
             if context:
-                ctx_matches = [
-                    p for p in candidates
-                    if context in normalize(p.get("category", ""))
-                       or any(context in normalize(t) for t in p.get("tags", []))
-                ]
-                if ctx_matches:
-                    return ctx_matches
-            # 2b) Otherwise (or no context‐matches) return all item matches
+                ctx = []
+                for p in candidates:
+                    cat = normalize(p.get("category",""))
+                    tags = [normalize(t) for t in p.get("tags",[])]
+                    if context == cat or context in tags:
+                        ctx.append(p)
+                if ctx:
+                    return ctx
+            # 2b) No context or no ctx‐matches: return all item matches
             return candidates
 
-    # 3) Only if **no** strict item matches found do we fall back to semantic search
+    # 3) No strict matches → embedding fallback
     return search_text(query, k=k)
+
 # Text embeddings (SentenceTransformer)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 sbert = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device)
