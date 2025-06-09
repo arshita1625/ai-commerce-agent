@@ -132,5 +132,18 @@ def search_image(file_bytes, k: int = 3):
     inputs = clip_processor(images=img, return_tensors="pt")
     with torch.no_grad():
         q_emb = clip_model.get_image_features(**inputs)[0].cpu().numpy()
-    D, I = index_image.search(np.expand_dims(q_emb, 0), k)
-    return [catalog[i] for i in I[0]]
+    # 1) Retrieve top-k by L2 distance
+    D, I = index_image.search(q_emb.reshape(1, -1), k)
+    neighbors = [catalog[i] for i in I[0]]
+
+    # 2) Determine the category of the top-1 match
+    top_cat_norm = normalize(neighbors[0]["category"])
+
+    # 3) Filter neighbors to those sharing the same category
+    filtered = [
+        p for p in neighbors
+        if normalize(p["category"]) == top_cat_norm
+    ]
+
+    # 4) If we got any same-category hits, return them; else return all neighbors
+    return filtered if filtered else neighbors

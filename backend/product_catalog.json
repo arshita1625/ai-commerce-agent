@@ -75,7 +75,9 @@
       "makeup",
       "lips",
       "long-wear",
-      "revlon"
+      "revlon",
+      "lips",
+      "lipstick"
     ],
     "brand": "Revlon",
     "price": 7.49
@@ -121,7 +123,8 @@
       "floral",
       "evening",
       "perfume"
-    ]
+    ],
+    "price": 50.99
   },
   {
     "id": 10,
@@ -134,6 +137,42 @@
       "marathon",
       "training",
       "running"
-    ]
+    ],
+    "price": 100.99
+  },
+  {
+    "id": 11,
+    "name": "Maybelline Vinyl Lipstick",
+    "description": "Matte, long-wear lipstick in a wide range of shades.",
+    "image_path": "images/maybelline_lipstick.png",
+    "category": "lipstick",
+    "tags": [
+      "makeup",
+      "lips",
+      "long-wear",
+      "maybelline",
+      "lips",
+      "lipstick"
+    ],
+    "brand": "Maybelline",
+    "price": 10.00
+  },
+  {
+    "id": 12,
+    "name": "Nyx Lipstick",
+    "description": "Creamy Whip.",
+    "image_path": "images/nyx_lipstick.png",
+    "category": "lipstick",
+    "tags": [
+      "makeup",
+      "lips",
+      "long-wear",
+      "nyx",
+      "lips",
+      "lipstick",
+      "creamy"
+    ],
+    "brand": "Nyx",
+    "price": 14.00
   }
 ]
