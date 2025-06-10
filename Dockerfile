@@ -11,28 +11,32 @@ RUN npm run build
 FROM python:3.11-slim-buster
 WORKDIR /app
 
-# 1) Install OS libs for OpenMP, BLAS, C++ runtime
+# Install OS libs for OpenMP, BLAS, C++ runtime
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      libgomp1 libomp5 libopenblas0-pthread libstdc++6 gcc && \
-    rm -rf /var/lib/apt/lists/*
+      build-essential \
+      libgomp1 \
+      libomp-dev \
+      libopenblas-dev \
+      libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
 
-# 2) Preload libraries to avoid TLS issues
+# Preload libraries to avoid static TLS errors
 ENV LD_PRELOAD="libgomp.so.1 libstdc++.so.6"
 
-# 3) Install Python deps (CPU‐only torch + the rest)
+# Install Python deps (CPU-only torch + your requirements)
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
  && pip install --no-cache-dir -r requirements.txt
 
-# 4) Copy backend code
+# Copy backend code
 COPY backend/ ./backend
 
-# 5) Copy built React assets into backend/static so FastAPI can serve the UI
+# Copy built React app into backend/static so FastAPI can serve it
 COPY --from=frontend-build /build/frontend/public ./backend/static
 
-# 6) Tell Docker/Cloud Run to listen on 8080
+# Expose port 8080 (Cloud Run default)
 EXPOSE 8080
 
-# 7) Launch Uvicorn on the port Cloud Run injects (default 8080)
+# Run Uvicorn on the Cloud Run–provided port
 CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
