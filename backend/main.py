@@ -20,7 +20,7 @@ app.add_middleware(
 )
 # serve React build
 # app.mount("/", StaticFiles(directory="static", html=True), name="static")
-# app.mount("/images", StaticFiles(directory="images"), name="images")
+app.mount("/images", StaticFiles(directory="images"), name="images")
 BASE_DIR = Path(__file__).resolve().parent
 IMAGES_DIR = BASE_DIR / "images"
 print("base",BASE_DIR)
@@ -32,6 +32,12 @@ app.mount(
 )
 class ChatInput(BaseModel):
     message: str
+@app.get("/")
+async def root():
+    return {"status": "ok"}
+@app.get("/health")
+async def health():
+    return {"status":"ok"}
 
 @app.post("/chat")
 async def chat_endpoint(input: ChatInput):
