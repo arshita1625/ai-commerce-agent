@@ -32,6 +32,6 @@ COPY backend/ ./backend
 # Copy built React app into backend/static for FastAPI
 COPY --from=frontend-build /build/frontend/public ./backend/static
 
-EXPOSE 8000
+EXPOSE 8080
 
-CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
