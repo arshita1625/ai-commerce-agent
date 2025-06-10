@@ -1,39 +1,37 @@
 # ─── Stage 1: Build React frontend ─────────────────────────────────────────
 FROM node:18 AS frontend-build
-WORKDIR /app/frontend
+WORKDIR /build/frontend
 
-# Install JS deps & build
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --silent
 COPY frontend/ ./
 RUN npm run build
 
 # ─── Stage 2: Build & Run FastAPI backend ─────────────────────────────────
-FROM python:3.11-slim-buster
+FROM python:3.11
+
 WORKDIR /app
 
-# 1) Install OS libs for OpenMP, BLAS, C++ runtime
+# Install OpenMP libs, stdc++, gcc
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       libgomp1 libomp5 libopenblas0-pthread libstdc++6 gcc && \
     rm -rf /var/lib/apt/lists/*
 
-# 2) Preload OpenMP & stdc++ to avoid TLS issues
+# Preload both gomp and stdc++ for FAISS/scikit-learn/transformers
 ENV LD_PRELOAD="libgomp.so.1 libstdc++.so.6"
 
-# 3) Install Python deps (CPU‐only torch + the rest)
+# Python deps: CPU-only torch first, then requirements
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
  && pip install --no-cache-dir -r requirements.txt
 
-# 4) Copy backend code
+# Copy backend code (main.py, utils.py, ollama_utils.py, etc.)
 COPY backend/ ./backend
 
-# 5) Copy the built React static files into backend/static
-COPY --from=frontend-build /app/frontend/public ./backend/static
+# Copy built React app into backend/static for FastAPI
+COPY --from=frontend-build /build/frontend/public ./backend/static
 
-# 6) Tell Docker and Cloud Run we listen on port 8000
 EXPOSE 8000
 
-# 7) Start Uvicorn on Cloud Run’s $PORT (defaults to 8000)
 CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
