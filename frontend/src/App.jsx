@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const API = 'http://localhost:8000';
-
+// const API = 'http://localhost:8000'; for local
+const API = ''; // for production
 export default function App() {
   const [messages, setMessages] = useState([
     { from: 'bot', text: 'Hi there 👋 I’m your personal AI Assistant. How can I help?' }

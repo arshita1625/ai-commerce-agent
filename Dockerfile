@@ -8,30 +8,31 @@ COPY frontend/ ./
 RUN npm run build
 
 # ─── Stage 2: Build & Run FastAPI backend ─────────────────────────────────
-FROM python:3.11
-
+FROM python:3.11-slim-buster
 WORKDIR /app
 
-# Install OpenMP libs, stdc++, gcc
+# 1) Install OS libs for OpenMP, BLAS, C++ runtime
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       libgomp1 libomp5 libopenblas0-pthread libstdc++6 gcc && \
     rm -rf /var/lib/apt/lists/*
 
-# Preload both gomp and stdc++ for FAISS/scikit-learn/transformers
+# 2) Preload libraries to avoid TLS issues
 ENV LD_PRELOAD="libgomp.so.1 libstdc++.so.6"
 
-# Python deps: CPU-only torch first, then requirements
+# 3) Install Python deps (CPU‐only torch + the rest)
 COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
  && pip install --no-cache-dir -r requirements.txt
 
-# Copy backend code (main.py, utils.py, ollama_utils.py, etc.)
+# 4) Copy backend code
 COPY backend/ ./backend
 
-# Copy built React app into backend/static for FastAPI
+# 5) Copy built React assets into backend/static so FastAPI can serve the UI
 COPY --from=frontend-build /build/frontend/public ./backend/static
 
-EXPOSE 8000
+# 6) Tell Docker/Cloud Run to listen on 8080
+EXPOSE 8080
 
-CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# 7) Launch Uvicorn on the port Cloud Run injects (default 8080)
+CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
