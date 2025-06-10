@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const API = 'http://localhost:8080';
+const API = 'http://localhost:8000';
 
 export default function App() {
   const [messages, setMessages] = useState([
