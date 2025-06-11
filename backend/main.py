@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 # from llama_utils import llama_chat
 # CORS setup
 app = FastAPI()
@@ -19,22 +20,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # serve React build
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 app.mount("/images", StaticFiles(directory="images"), name="images")
 BASE_DIR = Path(__file__).resolve().parent
 IMAGES_DIR = BASE_DIR / "images"
 print("base",BASE_DIR)
 # Mount it at /images
-app.mount(
-    "/images",
-    StaticFiles(directory=str(IMAGES_DIR)),
-    name="images"
-)
+# app.mount(
+#     "/images",
+#     StaticFiles(directory=str(IMAGES_DIR)),
+#     name="images"
+# )
 class ChatInput(BaseModel):
     message: str
 @app.get("/")
-async def root():
-    return {"status": "ok"}
+async def index():
+    return FileResponse("static/index.html")
 @app.get("/health")
 async def health():
     return {"status":"ok"}
