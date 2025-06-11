@@ -20,11 +20,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 # serve React build
-app.mount("/static", StaticFiles(directory="static", html=True), name="static")
+# app.mount("/static", StaticFiles(directory="static", html=True), name="static")
 app.mount("/images", StaticFiles(directory="images"), name="images")
-BASE_DIR = Path(__file__).resolve().parent
-IMAGES_DIR = BASE_DIR / "images"
-print("base",BASE_DIR)
+# BASE_DIR = Path(__file__).resolve().parent
+# IMAGES_DIR = BASE_DIR / "images"
+# print("base",BASE_DIR)
 # Mount it at /images
 # app.mount(
 #     "/images",
