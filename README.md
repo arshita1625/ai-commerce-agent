@@ -6,7 +6,6 @@ An end-to-end AI-powered shopping assistant for a commerce website. It combines 
 - **Text-based product recommendations** (semantic + strict catalog match)  
 - **Image-based product search** (CLIP embeddings + category filter)  
 
-![App Screenshot](docs/images/app_screenshot.png)
 
 ---
 ## Project Structure
