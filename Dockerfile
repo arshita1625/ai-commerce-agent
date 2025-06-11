@@ -43,3 +43,4 @@ EXPOSE 8080
 
 # Start Uvicorn on the Cloud Run–provided port (default 8080)
 CMD ["sh", "-c", "cd backend && uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+
