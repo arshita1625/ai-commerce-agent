@@ -67,7 +67,9 @@ uvicorn main:app --reload
 ```bash
 uvicorn main:app --reload
 ```
-
+![UI Screenshot](assets/fig1.png)
+![UI Screenshot](assets/fig2.png)
+![UI Screenshot](assets/fig3.png)
 ## Endpoints
 - **Chat**: `POST /chat` → `{ "message": "Hello" }`  
 - **Recommend**: `POST /recommend` → `{ "message": "Recommend a t-shirt" }`  
